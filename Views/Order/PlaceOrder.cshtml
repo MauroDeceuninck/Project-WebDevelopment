@@ -1,0 +1,39 @@
+﻿@{
+    ViewBag.Title = "Place Order";
+}
+
+<h2>Place Order</h2>
+
+@using (Html.BeginForm("PlaceOrder", "Order", FormMethod.Post))
+{
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Products</h3>
+            @foreach (var product in ViewBag.Products as List<Product>)
+            {
+                        <div class="form-group">
+                            <label>
+                        @Html.CheckBox("quantity_" + product.ProductId) @product.Name - $@product.Price
+                            </label>
+                        </div>
+            }
+            </div>
+            <div class="col-md-6">
+                @if (ViewBag.QuantityByProductId != null)
+                {
+                    <h3>Order Summary</h3>
+                    <ul>
+                            @foreach (var kvp in ViewBag.QuantityByProductId as Dictionary<int, int>)
+                            {
+                                if (kvp.Value > 0)
+                                {
+                                    var product = (ViewBag.Products as List<Product>).Single(p => p.ProductId == kvp.Key);
+                                        <li>@product.Name x @kvp.Value - $@(product.Price * kvp.Value)</li>
+                                }
+                            }
+                    </ul>
+                }
+                <input type="submit" value="Place Order" class="btn btn-primary" />
+            </div>
+        </div>
+}

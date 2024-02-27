@@ -1,0 +1,30 @@
+﻿@model List<Product>
+
+@{
+    ViewBag.Title = "Home";
+}
+
+<h2>Products</h2>
+
+<div class="row">
+    @foreach (var product in Model)
+    {
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name">
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text">$@product.Price</p>
+                        <form action="@Url.Action("AddToCart", "Cart")" method="post">
+                            <input type="hidden" name="productId" value="@product.ProductId" />
+                            <div class="form-group">
+                                <label for="quantity">Quantity:</label>
+                                <input type="number" name="quantity" class="form-control" value="1" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Buy</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    }
+</div>
