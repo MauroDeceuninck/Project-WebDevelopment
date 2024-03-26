@@ -15,20 +15,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<IdentityBreadPitContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//builder.Services.AddDefaultIdentity<IdentityUser>()
-//    .AddEntityFrameworkStores<IdentityBreadPitContext>()
+builder.Services.AddDefaultIdentity<IdentityUser>()
+    .AddEntityFrameworkStores<IdentityBreadPitContext>();
 //    .AddRoles<IdentityRole>();
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
-{
-    options.SignIn.RequireConfirmedAccount = false;
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-})
-    .AddEntityFrameworkStores<IdentityBreadPitContext>()
-    .AddDefaultTokenProviders();
+//builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+//{
+//    options.SignIn.RequireConfirmedAccount = false;
+//    options.Password.RequireDigit = false;
+//    options.Password.RequireLowercase = false;
+//    options.Password.RequireUppercase = false;
+//    options.Password.RequireNonAlphanumeric = false;
+//})
+//    .AddEntityFrameworkStores<IdentityBreadPitContext>()
+//    .AddDefaultTokenProviders();
+
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
