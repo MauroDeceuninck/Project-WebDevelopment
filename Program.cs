@@ -37,23 +37,33 @@ builder.Services.AddDefaultIdentity<IdentityUser>()
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+builder.Services.AddSession();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = "CartCookie";
+    // Other session options...
+});
+
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+
 // Configure other services...
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<IdentityBreadPitContext>();
-    context.Database.Migrate();
-    // requires using Microsoft.Extensions.Configuration;
-    // Set password with the Secret Manager tool.
-    // dotnet user-secrets set SeedUserPW <pw>
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var context = services.GetRequiredService<IdentityBreadPitContext>();
+//    context.Database.Migrate();
+//    // requires using Microsoft.Extensions.Configuration;
+//    // Set password with the Secret Manager tool.
+//    // dotnet user-secrets set SeedUserPW <pw>
 
-    //var testUserPw = builder.Configuration.GetValue<string>("SeedUserPW");
+//    //var testUserPw = builder.Configuration.GetValue<string>("SeedUserPW");
 
-    //await SeedData.Initialize(services, testUserPw);
-}
+//    //await SeedData.Initialize(services, testUserPw);
+//}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -70,5 +80,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+app.UseSession();
 
 app.Run();
