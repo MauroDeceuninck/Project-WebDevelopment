@@ -81,7 +81,7 @@
                     }
                     @total
                 }
-                <button class="btn btn-success" onclick="placeOrder()">Order</button>
+                <a class="btn btn-success" href="@Url.Action("Index", "Cart")">Checkout</a>
             </div>
         </div>
     </div>
@@ -99,7 +99,7 @@
         function updateTotal() {
             $.get('@Url.Action("TotalAmount", "Cart")', function (totalAmount) {
                 var totalHtml = 'Total: €' + totalAmount;
-                var orderButtonHtml = '<button class="btn btn-success" onclick="placeOrder()">Order</button>';
+                var orderButtonHtml = '<a class="btn btn-success" href="@Url.Action("Index", "Cart")">Checkout</a>';
                 $('.card-footer').html(totalHtml + orderButtonHtml);
             });
         }
@@ -107,24 +107,6 @@
         function onFailure(xhr, status, error) {
             alert('Failed to add product to cart. Please try again.');
             console.error(xhr, status, error);
-        }
-
-        function placeOrder() {
-            $.ajax({
-                url: '@Url.Action("PlaceOrder", "Order")',
-                type: 'POST',
-                success: function (response) {
-                    // Optionally, you can handle success behavior here
-                    alert('Order placed successfully!');
-                    // Reload the page to reflect any changes after placing the order
-                    window.location.reload();
-                },
-                error: function (xhr, status, error) {
-                    // Optionally, you can handle error behavior here
-                    alert('Failed to place the order. Please try again.');
-                    console.error(xhr, status, error);
-                }
-            });
         }
 
         function removeFromCart(productId) {

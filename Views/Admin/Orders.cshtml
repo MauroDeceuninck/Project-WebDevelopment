@@ -7,7 +7,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Select</th>
+                <th><input type="checkbox" id="selectAll" /></th>
                 <th>Order ID</th>
                 <th>User Email</th>
                 <th>Items</th>
@@ -38,3 +38,15 @@
         </tbody>
     </table>
 </form>
+
+@section Scripts {
+    <script>
+        // JavaScript function to handle select all checkbox
+        document.getElementById("selectAll").addEventListener("click", function () {
+            var checkboxes = document.getElementsByName("selectedOrders");
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = this.checked;
+            }
+        });
+    </script>
+}

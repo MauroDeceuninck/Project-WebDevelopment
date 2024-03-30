@@ -15,7 +15,6 @@ else
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Total Price</th>
-                <th>Delete</th>
             </tr>
         </thead>
         <tbody>
@@ -25,17 +24,37 @@ else
                     <td>@cartItem.Product.Name</td>
                     <td>$@cartItem.Product.Price</td>
                     <td>@cartItem.Quantity</td>
-                    <td>$@(cartItem.Product.Price * cartItem.Quantity)</td>
-                    <td>
-						<a asp-action="RemoveFromCart" asp-route-productId="@cartItem.Product.ProductId" class="btn btn-danger">
-							<i class="bi bi-trash"></i>
-						</a>
+                    <td>$@(cartItem.Product.Price * cartItem.Quantity)</td
                 </tr>
             }
             <tr>
                 <td colspan="3" class="text-right"><strong>Total:</strong></td>
                 <td>$@Model.Sum(item => item.Product.Price * item.Quantity)</td>
             </tr>
+
         </tbody>
     </table>
+    <button class="btn btn-success" onclick="placeOrder()">Order</button>
+}
+
+@section Scripts {
+    <script>
+        function placeOrder() {
+            $.ajax({
+                url: '@Url.Action("PlaceOrder", "Order")',
+                type: 'POST',
+                success: function (response) {
+                    // Optionally, you can handle success behavior here
+                    alert('Order placed successfully!');
+                    // Reload the page to reflect any changes after placing the order
+                    window.location.reload();
+                },
+                error: function (xhr, status, error) {
+                    // Optionally, you can handle error behavior here
+                    alert('Failed to place the order. Please try again.');
+                    console.error(xhr, status, error);
+                }
+            });
+        }
+    </script>
 }
