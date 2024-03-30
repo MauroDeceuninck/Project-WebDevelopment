@@ -19,19 +19,26 @@
                         <div class="card-body">
                             <h5 class="card-title">@product.Name</h5>
                             <p class="card-text">€@product.Price</p>
-                            <form action="@Url.Action("AddToCart", "Cart")" method="post" data-ajax="true" data-ajax-method="POST" data-ajax-success="onSuccess" data-ajax-failure="onFailure">
-                                <input type="hidden" name="productId" value="@product.ProductId" />
-                                <div class="form-group">
-                                    <label for="quantity">Quantity:</label>
-                                    <input type="number" name="quantity" class="form-control" value="1" />
-                                </div>
-                                <button type="submit" class="btn btn-primary mt-10">Buy</button>
-                            </form>
-
+                            @if (!User.IsInRole("User"))
+                            {
+                                <form action="@Url.Action("AddToCart", "Cart")" method="post" data-ajax="true" data-ajax-method="POST" data-ajax-success="onSuccess" data-ajax-failure="onFailure">
+                                    <input type="hidden" name="productId" value="@product.ProductId" />
+                                    <div class="form-group">
+                                        <label for="quantity">Quantity:</label>
+                                        <input type="number" name="quantity" class="form-control" value="1" />
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-10">Buy</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <p class="text-muted">You cannot buy products if you are nor approved by an administrator.</p>
+                            }
                         </div>
                     </div>
                 </div>
             }
+
         </div>
     </div>
     <div class="col-md-3">

@@ -1,0 +1,32 @@
+﻿@model List<Project.Models.OrderDetailsViewModel>
+
+<h2>Orders</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Customer Email</th>
+            <th>Items</th>
+            <th>Total Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var orderDetails in Model)
+        {
+            <tr>
+                <td>@orderDetails.OrderId</td>
+                <td>@orderDetails.UserEmail</td>
+                <td>
+                    <ul>
+                        @foreach (var item in orderDetails.OrderItems)
+                        {
+                            <li>@item.ProductName <strong>x @item.Quantity</strong></li>
+                        }
+                    </ul>
+                </td>
+                <td>@ViewBag.TotalPriceDict[orderDetails.OrderId]</td>
+            </tr>
+        }
+    </tbody>
+</table>

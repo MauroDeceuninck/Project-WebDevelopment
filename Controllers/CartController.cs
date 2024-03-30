@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Project.Models;
 using Project.Services;
 
 namespace Project.Controllers
 {
+    [Authorize(Roles = "Admin,Employee,ApprovedUser")]
     public class CartController : Controller
     {
         private readonly ICartService _cartService;

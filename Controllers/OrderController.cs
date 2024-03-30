@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Project.Data;
 using Project.Models;
@@ -9,6 +10,7 @@ using System.Security.Claims;
 
 namespace Project.Controllers
 {
+    [Authorize(Roles = "Admin,Employee,ApprovedUser")]
     public class OrderController : Controller
     {
         private readonly ICartService _cartService;

@@ -15,6 +15,7 @@ else
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Total Price</th>
+                <th>Delete</th>
             </tr>
         </thead>
         <tbody>
@@ -25,6 +26,10 @@ else
                     <td>$@cartItem.Product.Price</td>
                     <td>@cartItem.Quantity</td>
                     <td>$@(cartItem.Product.Price * cartItem.Quantity)</td>
+                    <td>
+						<a asp-action="RemoveFromCart" asp-route-productId="@cartItem.Product.ProductId" class="btn btn-danger">
+							<i class="bi bi-trash"></i>
+						</a>
                 </tr>
             }
             <tr>
