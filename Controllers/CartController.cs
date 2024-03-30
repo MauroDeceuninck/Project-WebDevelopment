@@ -1,88 +1,47 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Project.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using Project.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
+using Project.Services;
 
 namespace Project.Controllers
 {
     public class CartController : Controller
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly BreadPitContext _dbContext;
+        private readonly ICartService _cartService;
 
-        public CartController(IHttpContextAccessor httpContextAccessor, BreadPitContext dbContext)
+        public CartController(ICartService cartService)
         {
-            _httpContextAccessor = httpContextAccessor;
-            _dbContext = dbContext;
+            _cartService = cartService;
         }
 
         public IActionResult Index()
         {
-            var cartItems = GetCartItems();
+            var cartItems = _cartService.GetCartItems();
             return View(cartItems);
         }
-
 
         [HttpPost]
         public IActionResult AddToCart(int productId, int quantity)
         {
-            var product = _dbContext.Products.FirstOrDefault(p => p.ProductId == productId);
-
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            var cartItems = GetCartItems();
-
-            var existingCartItem = cartItems.FirstOrDefault(ci => ci.Product.ProductId == productId);
-
-            if (existingCartItem != null)
-            {
-                existingCartItem.Quantity += quantity;
-            }
-            else
-            {
-                var cartItem = new CartItem
-                {
-                    Product = product,
-                    Quantity = quantity
-                };
-
-                cartItems.Add(cartItem);
-            }
-
-            //// Update total price for each item
-            //foreach (var cartItem in cartItems)
-            //{
-            //    cartItem.TotalPrice = cartItem.Product.Price * cartItem.Quantity;
-            //}
-
-            SaveCartItems(cartItems);
-
-            return RedirectToAction("Index");
+            _cartService.AddToCart(productId, quantity);
+            var cartItems = _cartService.GetCartItems();
+            return PartialView("_CartItemsPartial", cartItems);
         }
 
-
-
-
-        private List<CartItem> GetCartItems()
+        [HttpPost]
+        public IActionResult RemoveFromCart(int productId)
         {
-            var session = _httpContextAccessor.HttpContext.Session;
-            var cartItemsJson = session.GetString("CartItems");
-            return cartItemsJson == null ? new List<CartItem>() :
-                JsonSerializer.Deserialize<List<CartItem>>(cartItemsJson);
+            _cartService.RemoveFromCart(productId);
+            var cartItems = _cartService.GetCartItems();
+            return PartialView("_CartItemsPartial", cartItems);
         }
 
-        private void SaveCartItems(List<CartItem> cartItems)
+
+
+        public IActionResult TotalAmount()
         {
-            var session = _httpContextAccessor.HttpContext.Session;
-            session.SetString("CartItems", JsonSerializer.Serialize(cartItems));
+            var totalAmount = _cartService.GetTotalAmount();
+            return Content(totalAmount.ToString());
         }
+
     }
 }

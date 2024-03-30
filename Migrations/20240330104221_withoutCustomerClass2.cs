@@ -4,7 +4,7 @@
 
 namespace Project.Migrations
 {
-    public partial class InitialIdentity : Migration
+    public partial class withoutCustomerClass2 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

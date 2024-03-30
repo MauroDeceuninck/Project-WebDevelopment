@@ -1,52 +1,70 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Project.Data;
 using Project.Models;
+using Project.Services;
+using System;
+using System.Linq;
+using System.Security.Claims;
 
-public class OrderController : Controller
+namespace Project.Controllers
 {
-    // Simulate product data (in a real application, you would retrieve this from a database)
-    private List<Product> GetProducts()
+    public class OrderController : Controller
     {
-        return new List<Product>
+        private readonly ICartService _cartService;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly BreadPitContext _dbContext;
+
+        public OrderController(ICartService cartService, UserManager<IdentityUser> userManager, BreadPitContext dbContext)
         {
-            new Product { ProductId = 1, Name = "Broodje A", Price = 5.00M },
-            new Product { ProductId = 2, Name = "Broodje B", Price = 6.50M },
-            // Add other products
-        };
-    }
-
-    public ActionResult PlaceOrder()
-    {
-        var products = GetProducts();
-        ViewBag.Products = products;
-        ViewBag.QuantityByProductId = new Dictionary<int, int>();
-
-        return View();
-    }
-
-    [HttpPost]
-    public ActionResult PlaceOrder(FormCollection form)
-    {
-        // Process the order, for example, save it to the database
-        Dictionary<int, int> quantityByProductId = new Dictionary<int, int>();
-        foreach (var key in form.Keys)
-        {
-            if (key.StartsWith("quantity_"))
-            {
-                int productId = int.Parse(key.Substring("quantity_".Length));
-                int quantity = int.Parse(form[key]);
-                quantityByProductId[productId] = quantity;
-            }
+            _cartService = cartService;
+            _userManager = userManager;
+            _dbContext = dbContext;
         }
 
-        // Perform the necessary actions with quantityByProductId
+        public IActionResult PlaceOrder()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get the current user's Id
 
-        return RedirectToAction("OrderSummary");
-    }
+            Console.WriteLine(userId);
 
+            var cartItems = _cartService.GetCartItems();
+            if (cartItems.Count == 0)
+            {
+                TempData["Message"] = "Your shopping cart is empty. Please add items before placing an order.";
+                return RedirectToAction("Index", "Home");
+            }
 
-    public ActionResult OrderSummary()
-    {
-        // Display an order summary (implement this as needed)
-        return View();
+            try
+            {
+                // Create a new order
+                var order = new Order
+                {
+                    UserId = userId, // Set the UserId to associate the order with the current user
+                    OrderItems = cartItems.Select(item => new OrderItem
+                    {
+                        ProductId = item.Product.ProductId,
+                        Quantity = item.Quantity,
+                        Price = item.Product.Price
+                    }).ToList()
+                };
+
+                // Add order to the database
+                _dbContext.Orders.Add(order);
+                _dbContext.SaveChanges();
+
+                // Clear the cart after successful order placement
+                _cartService.ClearCart();
+
+                TempData["Message"] = "Your order has been placed successfully!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to place the order. Please try again later.";
+                // Log the exception or handle it appropriately
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
     }
 }

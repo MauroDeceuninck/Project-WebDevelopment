@@ -1,29 +1,13 @@
-﻿@model IEnumerable<Project.Models.Product>
-
-<h2>Product List</h2>
+﻿<h2>Product List</h2>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Add New Product</a>
+    <a asp-action="Products" class="btn btn-primary">Show products</a>
+</p>
+<p>
+    <a asp-action="Orders" class="btn btn-primary">Manage orders</a>
+</p>
+<p>
+    <a asp-action="AdminPanel" class="btn btn-primary">Admin panel</a>
 </p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Product ID</th>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Image</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var product in Model)
-        {
-            <tr>
-                <td>@product.ProductId</td>
-                <td>@product.Name</td>
-                <td>@product.Price.ToString("C")</td>
-                <td><img src="@product.ImageUrl" alt="Product Image" style="max-width: 100px; max-height: 100px;" /></td>
-            </tr>
-        }
-    </tbody>
-</table>
+

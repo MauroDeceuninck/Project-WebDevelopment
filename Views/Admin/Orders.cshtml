@@ -1,0 +1,40 @@
+﻿@model List<Project.Models.OrderDetailsViewModel>
+
+<h2>Orders</h2>
+
+<form asp-action="DeleteBulk">
+    <button type="submit" class="btn btn-danger">Delete Selected</button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Order ID</th>
+                <th>User Email</th>
+                <th>Items</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var orderDetails in Model)
+            {
+                <tr>
+                    <td><input type="checkbox" name="selectedOrders" value="@orderDetails.OrderId" /></td>
+                    <td>@orderDetails.OrderId</td>
+                    <td>@orderDetails.UserEmail</td>
+                    <td>
+                        <ul>
+                            @foreach (var item in orderDetails.OrderItems)
+                            {
+                                <li>@item.ProductName <strong>x @item.Quantity</strong></li>
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        <a asp-action="OrderEdit" asp-route-id="@orderDetails.OrderId" class="btn btn-primary">Edit</a>
+                        <a asp-action="OrderDelete" asp-route-id="@orderDetails.OrderId" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>

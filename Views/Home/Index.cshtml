@@ -7,24 +7,134 @@
 <h2>Products</h2>
 
 <div class="row">
-    @foreach (var product in Model)
-    {
-        <div class="col-md-4">
-            <div class="card">
-                <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name">
-                <div class="card-body">
-                    <h5 class="card-title">@product.Name</h5>
-                    <p class="card-text">$@product.Price</p>
-                    <form action="@Url.Action("AddToCart", "Cart")" method="post">
-                        <input type="hidden" name="productId" value="@product.ProductId" />
-                        <div class="form-group">
-                            <label for="quantity">Quantity:</label>
-                            <input type="number" name="quantity" class="form-control" value="1" />
+    <div class="col-md-9">
+        <!-- Main content area -->
+        <div class="row">
+            @foreach (var product in Model)
+            {
+                <div class="col-md-4">
+                    <!-- Wrap each product in a half-width column -->
+                    <div class="card mb-3 md-4">
+                        <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name">
+                        <div class="card-body">
+                            <h5 class="card-title">@product.Name</h5>
+                            <p class="card-text">€@product.Price</p>
+                            <form action="@Url.Action("AddToCart", "Cart")" method="post" data-ajax="true" data-ajax-method="POST" data-ajax-success="onSuccess" data-ajax-failure="onFailure">
+                                <input type="hidden" name="productId" value="@product.ProductId" />
+                                <div class="form-group">
+                                    <label for="quantity">Quantity:</label>
+                                    <input type="number" name="quantity" class="form-control" value="1" />
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-10">Buy</button>
+                            </form>
+
                         </div>
-                        <button type="submit" class="btn btn-primary mt-10">Buy</button>
-                    </form>
+                    </div>
                 </div>
+            }
+        </div>
+    </div>
+    <div class="col-md-3">
+        <!-- Shopping cart area -->
+        <div class="card">
+            <div class="card-header">Shopping Cart</div>
+            <div class="card-body" id="cart-items">
+                @if (ViewBag.CartItems.Count == 0)
+                {
+                    <p>Your shopping cart is empty.</p>
+                }
+                else
+                {
+                    @foreach (var cartItem in ViewBag.CartItems)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-md-7">
+                                <span>@cartItem.Product.Name <strong>x @cartItem.Quantity</strong></span>
+                            </div>
+                            <div class="col-md-3">
+                                <span>€@(cartItem.Product.Price * cartItem.Quantity)</span>
+                            </div>
+                            <div class="col-md-2 d-flex justify-content-end align-items-center">
+                                <button class="btn btn-danger" onclick="removeFromCart(@cartItem.Product.ProductId)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                }
+            </div>
+
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                Total: €@{
+                    decimal total = 0;
+                    foreach (var cartItem in ViewBag.CartItems)
+                    {
+                        total += cartItem.Product.Price * cartItem.Quantity;
+                    }
+                    @total
+                }
+                <button class="btn btn-success" onclick="placeOrder()">Order</button>
             </div>
         </div>
-    }
+    </div>
 </div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-7Sf8b5K1U3jHcFPJzZDR+A4gk8sTsZ2GoIb2nWrCKCE=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajax-unobtrusive/3.2.6/jquery.unobtrusive-ajax.min.js"></script>
+    <script>
+        function onSuccess(data) {
+            $('#cart-items').html(data);
+            updateTotal();
+        }
+
+        function updateTotal() {
+            $.get('@Url.Action("TotalAmount", "Cart")', function (totalAmount) {
+                var totalHtml = 'Total: €' + totalAmount;
+                var orderButtonHtml = '<button class="btn btn-success" onclick="placeOrder()">Order</button>';
+                $('.card-footer').html(totalHtml + orderButtonHtml);
+            });
+        }
+
+        function onFailure(xhr, status, error) {
+            alert('Failed to add product to cart. Please try again.');
+            console.error(xhr, status, error);
+        }
+
+        function placeOrder() {
+            $.ajax({
+                url: '@Url.Action("PlaceOrder", "Order")',
+                type: 'POST',
+                success: function (response) {
+                    // Optionally, you can handle success behavior here
+                    alert('Order placed successfully!');
+                    // Reload the page to reflect any changes after placing the order
+                    window.location.reload();
+                },
+                error: function (xhr, status, error) {
+                    // Optionally, you can handle error behavior here
+                    alert('Failed to place the order. Please try again.');
+                    console.error(xhr, status, error);
+                }
+            });
+        }
+
+        function removeFromCart(productId) {
+            console.log('Removing product with ID ' + productId + ' from cart...');
+            $.ajax({
+                url: '@Url.Action("RemoveFromCart", "Cart")',
+                type: 'POST',
+                data: { productId: productId },
+                success: function (data) {
+                    $('#cart-items').html(data);
+                    updateTotal();
+                },
+                error: function (xhr, status, error) {
+                    alert('Failed to remove item from cart. Please try again.');
+                    console.error(xhr, status, error);
+                }
+            });
+        }
+    </script>
+}
