@@ -115,137 +115,128 @@ public class AdminController : Controller
 
 
 
-    public IActionResult OrderEdit(int id)
+    public async Task<IActionResult> OrderEdit(int id)
     {
-        var order = _context.Orders
+        var order = await _context.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
-            .FirstOrDefault(o => o.Id == id);
+            .FirstOrDefaultAsync(o => o.Id == id);
 
         if (order == null)
         {
             return NotFound();
         }
 
-        // Fetch available products
-        var products = _context.Products.ToList();
+        var user = await _userManager.FindByIdAsync(order.UserId);
+        if (user != null)
+        {
+            // Get the IDs of products already in the order
+            var productIdsInOrder = order.OrderItems.Select(oi => oi.ProductId).ToList();
 
-        // Create a SelectList for the dropdown
-        ViewBag.ProductList = new SelectList(products, "ProductId", "Name");
+            // Fetch available products that are not already in the order
+            var products = await _context.Products
+                .Where(p => !productIdsInOrder.Contains(p.ProductId))
+                .ToListAsync();
 
-        return View(order);
+            var orderDetailsViewModel = new OrderDetailsViewModel
+            {
+                OrderId = order.Id,
+                UserId = order.UserId,
+                UserEmail = user.Email,
+                OrderItems = order.OrderItems.Select(oi => new OrderItemViewModel
+                {
+                    Id = oi.Id,
+                    ProductName = oi.Product.Name,
+                    Quantity = oi.Quantity,
+                    Price = oi.Price
+                }).ToList()
+            };
+
+            // Pass the filtered product list to the view
+            ViewBag.ProductList = new SelectList(products, "ProductId", "Name");
+
+            return View(orderDetailsViewModel);
+        }
+
+        return NotFound();
     }
 
 
-
     [HttpPost]
-    public IActionResult OrderEdit(Order order, string action)
+    public IActionResult UpdateOrderItems(OrderDetailsViewModel model)
     {
-        if (action == "SaveChanges")
-        {
-            Console.WriteLine("Inside SaveChanges");
-            // Handle updating order item quantities
-            if (ModelState.IsValid)
-            {
-                Console.WriteLine(ModelState);
-                Console.WriteLine("Inside SaveChanges ModelState.IsValid");
-                foreach (var item in order.OrderItems)
-                {
-                    // Find the order item in the database
-                    var orderItem = _context.OrderItems.FirstOrDefault(oi => oi.Id == item.Id);
-                    Console.WriteLine("Inside Foreach");
-                    // If the order item exists, update its quantity
-                    if (orderItem != null)
-                    {
-                        Console.WriteLine("Inside If");
-                        Console.WriteLine(item.Quantity);
-                        orderItem.Quantity = item.Quantity;
-                    }
-                    else
-                    {
-                        // Log an error if the order item is not found
-                        Console.WriteLine($"Order item with ID {item.Id} not found.");
-                    }
-                }
-
-                // Save changes to the database
-                _context.SaveChanges();
-                Console.WriteLine("Order items updated successfully!");
-            }
-            else
-            {
-                // Log model state errors if the model state is invalid
-                Console.WriteLine("ModelState is not valid!");
-                foreach (var modelState in ModelState.Values)
-                {
-                    foreach (var error in modelState.Errors)
-                    {
-                        Console.WriteLine(error.ErrorMessage);
-                    }
-                }
-            }
-        }
-        else if (action == "AddProduct")
-        {
-            // Handle adding product to order
-            return AddProduct(order);
-        }
-
-        // Redirect to the Orders page
-        return RedirectToAction("Orders");
-    }
-
-    [HttpPost]
-    public IActionResult UpdateOrder(Order order)
-    {
-        // Update order items
         if (ModelState.IsValid)
         {
-            foreach (var item in order.OrderItems)
+            Console.WriteLine("order.OrderItems: " + model.OrderItems);
+
+            foreach (var item in model.OrderItems)
             {
+                Console.WriteLine("Item: " + item);
+                // Find the order item in the database
                 var orderItem = _context.OrderItems.FirstOrDefault(oi => oi.Id == item.Id);
+
+                // If the order item exists, update its quantity
                 if (orderItem != null)
                 {
                     orderItem.Quantity = item.Quantity;
                 }
+                else
+                {
+                    // Log an error if the order item is not found
+                    Console.WriteLine($"Order item with ID {item.Id} not found.");
+                }
             }
+
+            // Save changes to the database
             _context.SaveChanges();
+            Console.WriteLine("Order items updated successfully!");
+
+            // Redirect to the Orders page after saving changes
             return RedirectToAction("Orders");
         }
-        return View("OrderEdit", order);
+        else
+        {
+            // Log model state errors if the model state is invalid
+            Console.WriteLine("ModelState is not valid!");
+            foreach (var modelState in ModelState.Values)
+            {
+                foreach (var error in modelState.Errors)
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
+            }
+
+            // If model state is not valid, return to the edit page
+            return RedirectToAction("OrderEdit", new { id = model.OrderId });
+        }
     }
 
-
-    private IActionResult AddProduct(Order order)
+    [HttpPost]
+    public IActionResult AddProduct(OrderDetailsViewModel model)
     {
-        Console.WriteLine("Inside AddProduct--------------------------------------------------------------------------------------------------------------------");
         if (ModelState.IsValid)
         {
-            Console.WriteLine("Inside AddProduct ModelState.IsValid--------------------------------------------------------------------------------------------------------------------");
             // Retrieve the order from the database
             var existingOrder = _context.Orders
                 .Include(o => o.OrderItems)
-                .FirstOrDefault(o => o.Id == order.Id);
+                .FirstOrDefault(o => o.Id == model.OrderId);
 
             if (existingOrder != null)
             {
-                Console.WriteLine("Inside AddProduct existingOrder != null--------------------------------------------------------------------------------------------------------------------");
                 // Find the selected product by its id
-                var product = _context.Products.FirstOrDefault(p => p.ProductId == order.NewProductId);
+                var product = _context.Products.FirstOrDefault(p => p.ProductId == model.NewProductId);
 
                 if (product != null)
                 {
-                    Console.WriteLine("Inside AddProduct product != null--------------------------------------------------------------------------------------------------------------------");
                     // Add the selected product with the specified quantity to the order
                     existingOrder.OrderItems.Add(new OrderItem
                     {
                         ProductId = product.ProductId,
-                        Quantity = order.NewQuantity,
+                        Quantity = model.NewQuantity,
                         Price = product.Price
                     });
 
                     // Set the UserId property of the order
-                    // You can retrieve the current user's id using HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                     existingOrder.UserId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                     // Save changes to the database
@@ -275,15 +266,26 @@ public class AdminController : Controller
         }
 
         // Redirect back to the OrderEdit page
-        return RedirectToAction("OrderEdit", new { id = order.Id });
+        return RedirectToAction("OrderEdit", new { id = model.OrderId });
     }
 
-
-
-
-
-
     [HttpPost]
+    public IActionResult DeleteOrderItem(int itemId)
+    {
+        var orderItem = _context.OrderItems.Find(itemId);
+        if (orderItem == null)
+        {
+            return NotFound();
+        }
+
+        _context.OrderItems.Remove(orderItem);
+        _context.SaveChanges();
+
+        // Redirect back to the OrderEdit page after deleting the item
+        return RedirectToAction("OrderEdit", new { id = orderItem.OrderId });
+    }
+
+    [HttpDelete]
     public IActionResult OrderDelete(int id)
     {
         var order = _context.Orders.Find(id);
@@ -296,6 +298,7 @@ public class AdminController : Controller
         _context.SaveChanges();
         return RedirectToAction("Orders");
     }
+
 
     [HttpPost]
     public IActionResult DeleteBulk(int[] selectedOrders)
@@ -420,5 +423,18 @@ public class AdminController : Controller
         return RedirectToAction("AdminPanel");
     }
 
-    // Add other action methods for updating and deleting products
+    [HttpPost]
+    public IActionResult DeleteProduct(int id)
+    {
+        var product = _context.Products.Find(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        _context.Products.Remove(product);
+        _context.SaveChanges();
+
+        return RedirectToAction("Products");
+    }
 }

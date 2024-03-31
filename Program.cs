@@ -24,6 +24,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
     .AddRoles<IdentityRole>() // Enable role support
     .AddEntityFrameworkStores<IdentityBreadPitContext>();
 
+builder.Services.AddHostedService<OrderPurgeService>();
+
 // Add other services as needed
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddControllersWithViews();

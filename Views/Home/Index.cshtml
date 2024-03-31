@@ -1,4 +1,9 @@
 ﻿@model List<Project.Models.Product>
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+
+
+
 
 @{
     ViewBag.Title = "Home";
@@ -19,20 +24,27 @@
                         <div class="card-body">
                             <h5 class="card-title">@product.Name</h5>
                             <p class="card-text">€@product.Price</p>
-                            @if (!User.IsInRole("User"))
+                            @if (SignInManager.IsSignedIn(User))
                             {
-                                <form action="@Url.Action("AddToCart", "Cart")" method="post" data-ajax="true" data-ajax-method="POST" data-ajax-success="onSuccess" data-ajax-failure="onFailure">
-                                    <input type="hidden" name="productId" value="@product.ProductId" />
-                                    <div class="form-group">
-                                        <label for="quantity">Quantity:</label>
-                                        <input type="number" name="quantity" class="form-control" value="1" />
-                                    </div>
-                                    <button type="submit" class="btn btn-primary mt-10">Buy</button>
-                                </form>
-                            }
-                            else
+                                @if (!User.IsInRole("User"))
+                                {
+                                    <form action="@Url.Action("AddToCart", "Cart")" method="post" data-ajax="true" data-ajax-method="POST" data-ajax-success="onSuccess" data-ajax-failure="onFailure">
+                                        <input type="hidden" name="productId" value="@product.ProductId" />
+                                        <div class="form-group">
+                                            <label for="quantity">Quantity:</label>
+                                            <input type="number" name="quantity" class="form-control mb-2" value="1" />
+                                        </div>
+                                        <button type="submit" class="btn btn-primary mt-10">Buy</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <p class="text-muted">You cannot buy products if you are not approved by an administrator.</p>
+                                }
+
+                            } else
                             {
-                                <p class="text-muted">You cannot buy products if you are nor approved by an administrator.</p>
+                                <p class="text-muted">Please log in or sign in to buy products.</p>
                             }
                         </div>
                     </div>

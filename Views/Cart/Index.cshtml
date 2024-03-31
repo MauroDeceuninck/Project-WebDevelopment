@@ -22,14 +22,14 @@ else
             {
                 <tr>
                     <td>@cartItem.Product.Name</td>
-                    <td>$@cartItem.Product.Price</td>
+                    <td>€@cartItem.Product.Price</td>
                     <td>@cartItem.Quantity</td>
-                    <td>$@(cartItem.Product.Price * cartItem.Quantity)</td
+                    <td>€@(cartItem.Product.Price * cartItem.Quantity)</td
                 </tr>
             }
             <tr>
                 <td colspan="3" class="text-right"><strong>Total:</strong></td>
-                <td>$@Model.Sum(item => item.Product.Price * item.Quantity)</td>
+                <td>€@Model.Sum(item => item.Product.Price * item.Quantity)</td>
             </tr>
 
         </tbody>

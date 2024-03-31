@@ -1,13 +1,33 @@
-﻿<h2>Product List</h2>
+﻿<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Product List</h5>
+                    <p class="card-text">View and manage products.</p>
+                    <a asp-action="Products" class="btn btn-primary btn-block">Show Products</a>
+                </div>
+            </div>
+        </div>
 
-<p>
-    <a asp-action="Products" class="btn btn-primary">Show products</a>
-</p>
-<p>
-    <a asp-action="Orders" class="btn btn-primary">Manage orders</a>
-</p>
-<p>
-    <a asp-action="AdminPanel" class="btn btn-primary">Admin panel</a>
-</p>
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Order Management</h5>
+                    <p class="card-text">Remove orders and add products to orders.</p>
+                    <a asp-action="Orders" class="btn btn-primary btn-block">Manage Orders</a>
+                </div>
+            </div>
+        </div>
 
-
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Admin Panel</h5>
+                    <p class="card-text">Change user roles.</p>
+                    <a asp-action="AdminPanel" class="btn btn-primary btn-block">Admin Panel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

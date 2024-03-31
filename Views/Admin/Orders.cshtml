@@ -31,7 +31,7 @@
                     </td>
                     <td>
                         <a asp-action="OrderEdit" asp-route-id="@orderDetails.OrderId" class="btn btn-primary">Edit</a>
-                        <a asp-action="OrderDelete" asp-route-id="@orderDetails.OrderId" class="btn btn-danger">Delete</a>
+                        <button type="button" class="btn btn-danger delete-btn" data-order-id="@orderDetails.OrderId">Delete</button>
                     </td>
                 </tr>
             }
@@ -47,6 +47,25 @@
             for (var i = 0; i < checkboxes.length; i++) {
                 checkboxes[i].checked = this.checked;
             }
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const orderId = this.getAttribute('data-order-id');
+                if (confirm('Are you sure you want to delete this order?')) {
+                    fetch(`/Admin/OrderDelete/${orderId}`, {
+                        method: 'DELETE'
+                    }).then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            console.error('Failed to delete order.');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+            });
         });
     </script>
 }
