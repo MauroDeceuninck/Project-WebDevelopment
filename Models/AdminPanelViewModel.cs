@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 
-namespace Project.ViewModels // Pas deze namespace aan op basis van de structuur van je project
+namespace Project.ViewModels
 {
     public class AdminPanelViewModel
     {

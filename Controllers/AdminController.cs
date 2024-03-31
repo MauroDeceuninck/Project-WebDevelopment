@@ -167,11 +167,8 @@ public class AdminController : Controller
     {
         if (ModelState.IsValid)
         {
-            Console.WriteLine("order.OrderItems: " + model.OrderItems);
-
             foreach (var item in model.OrderItems)
             {
-                Console.WriteLine("Item: " + item);
                 // Find the order item in the database
                 var orderItem = _context.OrderItems.FirstOrDefault(oi => oi.Id == item.Id);
 

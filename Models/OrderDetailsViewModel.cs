@@ -8,9 +8,9 @@ namespace Project.Models
         public string UserId { get; set; }
         public string UserEmail { get; set; }
         public List<OrderItemViewModel> OrderItems { get; set; }
-        public int NewProductId { get; set; } // Add the NewQuantity property
+        public int NewProductId { get; set; }
 
-        public int NewQuantity { get; set; } // Add the NewQuantity property
+        public int NewQuantity { get; set; }
     }
 
     public class OrderItemViewModel

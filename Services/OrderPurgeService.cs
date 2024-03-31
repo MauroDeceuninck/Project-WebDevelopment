@@ -29,10 +29,8 @@ namespace Project.Services
                 purgeTime = purgeTime.AddDays(1);
             }
 
-            // Calculate the interval until the next execution time
             var delay = purgeTime - currentTime;
 
-            // Set the timer to execute the task at the scheduled time
             _timer = new Timer(PurgeOrders, null, delay, TimeSpan.FromDays(1));
 
             return Task.CompletedTask;
@@ -51,20 +49,15 @@ namespace Project.Services
 
         private async void PurgeOrders(object state)
         {
-            Console.WriteLine("Purging orders.....................................................................................................");
             using (var scope = _scopeFactory.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<BreadPitContext>();
 
-                // Get all orders from the database
                 var orders = await context.Orders.ToListAsync();
 
-                // Remove each order
                 context.Orders.RemoveRange(orders);
 
-                // Save changes to the database
                 await context.SaveChangesAsync();
-                Console.WriteLine("Orders Purged.....................................................................................................");
             }
         }
     }

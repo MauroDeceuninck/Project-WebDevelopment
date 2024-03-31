@@ -17,11 +17,8 @@ builder.Services.AddDbContext<IdentityBreadPitContext>(options =>
 builder.Services.AddDbContext<BreadPitContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options =>
-{
-    // Configure identity options if needed
-})
-    .AddRoles<IdentityRole>() // Enable role support
+builder.Services.AddDefaultIdentity<IdentityUser>(options => { })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<IdentityBreadPitContext>();
 
 builder.Services.AddHostedService<OrderPurgeService>();
@@ -36,7 +33,6 @@ builder.Services.AddSession(options =>
 });
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-// Build app
 var app = builder.Build();
 
 // Configure middleware

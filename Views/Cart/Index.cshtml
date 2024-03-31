@@ -44,13 +44,10 @@ else
                 url: '@Url.Action("PlaceOrder", "Order")',
                 type: 'POST',
                 success: function (response) {
-                    // Optionally, you can handle success behavior here
                     alert('Order placed successfully!');
-                    // Reload the page to reflect any changes after placing the order
                     window.location.reload();
                 },
                 error: function (xhr, status, error) {
-                    // Optionally, you can handle error behavior here
                     alert('Failed to place the order. Please try again.');
                     console.error(xhr, status, error);
                 }

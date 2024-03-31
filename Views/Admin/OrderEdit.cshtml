@@ -31,7 +31,6 @@
                     </div>
 
                     <div class="col-md-1">
-                        <!-- Delete button for each item -->
                         <button type="button" class="btn btn-danger" onclick="deleteItem(@Model.OrderItems[i].Id)">Delete</button>
                     </div>
                 </div>
@@ -74,7 +73,6 @@
 @section scripts {
     <script>
         function deleteItem(itemId) {
-            // You can use JavaScript to submit a hidden form with the itemId to delete
             document.getElementById('ItemIdToDelete').value = itemId;
             document.getElementById('DeleteItemForm').submit();
         }
